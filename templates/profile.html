@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            margin: auto;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        .comment {
+            background-color: #f9f9f9;
+            border-left: 4px solid #007bff;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .comment-body {
+            font-size: 0.95em;
+            color: #333;
+        }
+        .comment-body small {
+            color: #777;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>👤 {{ user.username }} — Личный кабинет</h2>
+        <h3>❤️ Избранные фильмы</h3>
+
+{% if favorites %}
+    {% for movie in favorites %}
+    <div class="movie-card" style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <div class="poster">
+            {% if movie.poster_filename %}
+                <img src="{{ url_for('get_poster', filename=movie.poster_filename) }}" alt="Постер" style="width: 100px; height: 140px; object-fit: cover; border-radius: 6px;">
+            {% else %}
+                <img src="https://via.placeholder.com/100x140.png?text=Нет+постера" alt="Нет постера" style="width: 100px; height: 140px;">
+            {% endif %}
+        </div>
+        <div>
+            <strong>{{ movie.title }}</strong><br>
+            <small>{{ movie.year or '???' }} • {{ movie.country or '—' }} • {{ movie.genre or '—' }}</small><br><br>
+            <a href="{{ url_for('movie_details', movie_id=movie.id) }}">▶ Смотреть</a>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>У вас пока нет избранных фильмов.</p>
+{% endif %}
+
+        <h3>Ваши комментарии</h3>
+
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-body">
+                    <strong>К фильму:</strong>
+                    <a href="{{ url_for('movie_details', movie_id=comment.movie.id) }}">{{ comment.movie.title }}</a><br>
+                    {% if comment.rating %}Оценка: ⭐ {{ comment.rating }}/5<br>{% endif %}
+                    <p>{{ comment.text }}</p>
+                    <small>{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Вы пока не оставили ни одного комментария.</p>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}">← На главную</a>
+    </div>
+</body>
+</html>

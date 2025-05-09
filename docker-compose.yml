@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:14
+    container_name: cinema_db
+    restart: always
+    environment:
+      POSTGRES_DB: online_cinema
+      POSTGRES_USER: cinema_user
+      POSTGRES_PASSWORD: cinema_pass
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: cinema_web
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "5002:5000"
+    environment:
+      FLASK_ENV: production
+      DATABASE_URL: postgresql://cinema_user:cinema_pass@db:5432/online_cinema
+    volumes:
+      - ./movies:/app/movies                # каталог с фильмами
+      - ./posters:/app/posters              # каталог с постерами
+
+volumes:
+  pg_data:

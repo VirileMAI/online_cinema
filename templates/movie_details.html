@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ movie.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 30px;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            margin: auto;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .poster {
+            float: left;
+            margin-right: 20px;
+        }
+        .poster img {
+            width: 200px;
+            height: 290px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .meta {
+            overflow: hidden;
+        }
+        .meta p {
+            margin: 6px 0;
+        }
+        video {
+            width: 100%;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+        .back-link {
+            margin-top: 30px;
+            display: inline-block;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .comment {
+            background-color: #f9f9f9;
+            border-left: 4px solid #007bff;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .comment-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .comment-body {
+            font-size: 0.95em;
+            color: #333;
+        }
+        .comment-body small {
+            color: #777;
+            font-size: 0.8em;
+        }
+        .comment {
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-left: 4px solid #007bff;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 0.95em;
+    }
+
+    .comment-rating {
+        color: #ffbf00;
+        font-size: 0.9em;
+    }
+
+    .comment-text {
+        margin: 10px 0;
+        font-size: 0.95em;
+        color: #333;
+    }
+
+    .comment-date {
+        text-align: right;
+        font-size: 0.8em;
+        color: #888;
+        margin-top: 5px;
+    }
+    .comment-form {
+    background: #fefefe;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.comment-form .form-row {
+    margin-bottom: 15px;
+}
+
+.comment-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.comment-form select,
+.comment-form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.95em;
+}
+
+.btn-comment {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-comment:hover {
+    background-color: #0056b3;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="poster">
+            {% if movie.poster_filename %}
+                <img src="{{ url_for('get_poster', filename=movie.poster_filename) }}" alt="Постер">
+            {% else %}
+                <img src="https://via.placeholder.com/200x290.png?text=Нет+постера" alt="Нет постера">
+            {% endif %}
+        </div>
+
+        <div class="meta">
+            <h1>{{ movie.title }}</h1>
+            <p><strong>Слоган:</strong> {{ movie.slogan or '—' }}</p>
+            <p><strong>Год:</strong> {{ movie.year or '—' }}</p>
+            <p><strong>Страна:</strong> {{ movie.country or '—' }}</p>
+            <p><strong>Жанр:</strong> {{ movie.genre or '—' }}</p>
+            <p><strong>Режиссёр:</strong> {{ movie.director or '—' }}</p>
+            <p><strong>Сценарий:</strong> {{ movie.writer or '—' }}</p>
+            <p><strong>Просмотров:</strong> {{ movie.views }}</p>
+            <p><strong>Средняя оценка:</strong>
+                {% if avg_rating %}
+                    ⭐ {{ avg_rating }}/5
+                {% else %}
+                    — ещё нет оценок
+                {% endif %}
+            </p>
+        </div>
+
+        <div style="clear: both;"></div>
+
+        <video controls>
+            <source src="{{ url_for('get_video', filename=movie.video_filename) }}" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+
+        <hr>
+        <h3>Комментарии</h3>
+
+        {% if session.get('user_id') %}
+        <form method="post" class="comment-form">
+    <div class="form-row">
+        <label for="rating">Оценка (1–5):</label>
+        <select name="rating" id="rating">
+            <option value="">Без оценки</option>
+            {% for i in range(1, 6) %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="text">Комментарий:</label>
+        <textarea name="text" id="text" rows="3" required></textarea>
+    </div>
+
+    <div class="form-row" style="text-align: right;">
+        <button type="submit" class="btn-comment">💬 Отправить</button>
+    </div>
+</form>
+
+        {% else %}
+        <p><a href="{{ url_for('login') }}">Войдите</a>, чтобы оставить комментарий.</p>
+        {% endif %}
+
+        <br>
+
+        {% if comments %}
+            {% for comment in comments %}
+<div class="comment">
+    <div class="comment-header">
+        <span>{{ comment.user.username }}</span>
+        {% if comment.rating %}
+            <span class="comment-rating">⭐ {{ comment.rating }}/5</span>
+        {% endif %}
+    </div>
+    <div class="comment-text">{{ comment.text }}</div>
+    <div class="comment-date">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+</div>
+{% endfor %}
+
+        {% else %}
+            <p>Комментариев пока нет.</p>
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" class="back-link">← Назад ко всем фильмам</a>
+    </div>
+</body>
+</html>

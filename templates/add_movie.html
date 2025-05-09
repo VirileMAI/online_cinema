@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить фильм</title>
+</head>
+<body>
+    <h2>Добавить фильм</h2>
+    <form action="/add_movie" method="post" enctype="multipart/form-data">
+        <label>Название:</label><br>
+        <input type="text" name="title" required><br><br>
+
+        <label>Год производства:</label><br>
+        <input type="number" name="year"><br><br>
+
+        <label>Страна:</label><br>
+        <input type="text" name="country"><br><br>
+
+        <label>Жанр:</label><br>
+        <input type="text" name="genre"><br><br>
+
+        <label>Слоган:</label><br>
+        <input type="text" name="slogan"><br><br>
+
+        <label>Режиссёр:</label><br>
+        <input type="text" name="director"><br><br>
+
+        <label>Сценарист:</label><br>
+        <input type="text" name="writer"><br><br>
+
+        <label>Файл (.mp4):</label><br>
+        <input type="file" name="file" accept="video/mp4" required><br><br>
+
+        <label>Постер (.jpg/.png):</label><br>
+        <input type="file" name="poster" accept="image/png, image/jpeg"><br><br>
+
+        <input type="submit" value="Добавить фильм">
+    </form>
+
+    <br><a href="/">← Вернуться на главную</a>
+</body>
+</html>

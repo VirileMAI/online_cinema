@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Онлайн-кинотеатр</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .top-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            padding: 6px 14px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .movie-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .poster {
+            flex-shrink: 0;
+        }
+        .poster img {
+            width: 150px;
+            height: 220px;
+            border-radius: 6px;
+            object-fit: cover;
+            object-position: center;
+            background-color: #ddd;
+        }
+        .movie-info {
+            flex-grow: 1;
+        }
+        .movie-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .movie-meta {
+            font-size: 0.9em;
+            color: #555;
+        }
+        .user-panel {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    }
+    .user-panel a {
+        margin-left: 10px;
+        text-decoration: none;
+        color: #007bff;
+        font-weight: bold;
+    }
+    .user-panel a:hover {
+        text-decoration: underline;
+    }
+    </style>
+</head>
+<body>
+    <div class="user-panel">
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('profile') }}">👤 Кабинет</a>
+            <a href="{{ url_for('logout') }}">🚪 Выйти</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">🔐 Войти</a>
+            <a href="{{ url_for('register') }}">📝 Регистрация</a>
+        {% endif %}
+    </div>
+    <form method="get" action="{{ url_for('index') }}" style="text-align: center; margin-bottom: 30px;">
+    <input type="text" name="q" placeholder="🔍 Название" value="{{ query }}" style="padding: 6px 10px; width: 180px;">
+    <input type="text" name="genre" placeholder="🎭 Жанр" value="{{ genre }}" style="padding: 6px 10px; width: 140px;">
+    <input type="text" name="country" placeholder="🌍 Страна" value="{{ country }}" style="padding: 6px 10px; width: 140px;">
+    <input type="text" name="year" placeholder="📅 Год" value="{{ year }}" style="padding: 6px 10px; width: 100px;">
+    <button type="submit" style="padding: 6px 14px; background-color: #007bff; color: white; border: none; border-radius: 4px;">Найти</button>
+</form>
+
+
+    <h1>🎬 Список фильмов</h1>
+
+    <div class="top-links">
+        {% if user and user.is_admin %}
+            <a class="btn" href="{{ url_for('add_movie') }}">➕ Добавить фильм</a>
+        {% endif %}
+    </div>
+
+    {% if movies %}
+        {% for movie in movies %}
+        <div class="movie-card">
+            <div class="poster">
+                {% if movie.poster_filename %}
+                    <img src="{{ url_for('get_poster', filename=movie.poster_filename) }}" alt="Постер">
+                {% else %}
+                    <img src="https://via.placeholder.com/150x220.png?text=Нет+постера" alt="Нет постера">
+                {% endif %}
+            </div>
+            <div class="movie-info">
+                <div class="movie-title">{{ movie.title }}</div>
+                <div class="movie-meta">
+                    {{ movie.year or "???" }} • {{ movie.country or "Страна не указана" }}<br>
+                    Жанр: {{ movie.genre or "—" }}<br>
+                    Просмотров: {{ movie.views }}<br>
+                    {% if movie.id in movie_ratings %}
+                        <p>⭐ Средняя оценка: {{ movie_ratings[movie.id] }}/5</p>
+                    {% endif %}
+                </div>
+                <br>
+                {% if session.get('user_id') %}
+    {% set is_fav = movie in user.favorite_movies %}
+    <form action="{{ url_for('toggle_favorite', movie_id=movie.id) }}" method="get" style="margin-top: 10px;">
+        <button type="submit" class="btn">
+            {% if is_fav %}💔 Убрать из избранного{% else %}❤️ В избранное{% endif %}
+        </button>
+    </form>
+{% endif %}
+
+                <a class="btn" href="{{ url_for('movie_details', movie_id=movie.id) }}">Подробнее</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center;">Фильмы пока не добавлены.</p>
+    {% endif %}
+
+</body>
+</html>
