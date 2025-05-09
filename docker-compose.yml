@@ -24,8 +24,9 @@ services:
       FLASK_ENV: production
       DATABASE_URL: postgresql://cinema_user:cinema_pass@db:5432/online_cinema
     volumes:
-      - ./movies:/app/movies                # каталог с фильмами
-      - ./posters:/app/posters              # каталог с постерами
+      - .:/app                      # весь проект монтируется в контейнер
+      - ./movie:/app/movie         # фильмы
+      - ./posters:/app/posters     # постеры
 
 volumes:
   pg_data:
